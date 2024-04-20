@@ -1,12 +1,11 @@
 package com.simonky.peliculas.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.simonky.peliculas.exceptions.PeliculaNotFoundException;
 import com.simonky.peliculas.model.Pelicula;
 import com.simonky.peliculas.repository.PeliculaRepository;
 
@@ -23,13 +22,17 @@ public class PeliculaServiceImpl implements PeliculaService {
     }
 
     @Override
-    public Optional<Pelicula> getPeliculaById(Long id) {
-        return this.peliculaRepository.findById(id);
+    public Pelicula getPeliculaById(Long id) {
+        return this.peliculaRepository.findById(id)
+            .orElseThrow(() -> new PeliculaNotFoundException(id));
     }
 
     @Override
-    public void deletePelicula(Long Id) {
-        this.peliculaRepository.deleteById(Id);
+    public void deletePelicula(Long id) {
+        this.peliculaRepository.findById(id)
+            .orElseThrow(() -> new PeliculaNotFoundException(id));
+
+        this.peliculaRepository.deleteById(id);
     }
 
     @Override
@@ -38,32 +41,13 @@ public class PeliculaServiceImpl implements PeliculaService {
     }
 
     @Override
-    public Pelicula updatePelicula(Long Id, Pelicula pelicula) {
-        if(this.peliculaRepository.existsById(Id)){
-            pelicula.setId(Id);
-            return this.peliculaRepository.save(pelicula);
-        } 
-        else {
-            return null;
-        }
-        
+    public Pelicula updatePelicula(Long id, Pelicula pelicula) {
+        pelicula.setId(id);
+
+        this.peliculaRepository.findById(pelicula.getId())
+            .orElseThrow(() -> new PeliculaNotFoundException(pelicula.getId()));
+
+        return this.peliculaRepository.save(pelicula);
     }
 
-    @Override
-    public void Iniciar() {
-        List<Pelicula> peliculas = new ArrayList<>();
-        
-        for(int i = 0; i <= 5; i++) {
-            Pelicula peli = new Pelicula();
-            peli.setAnno(2000 + i);
-            peli.setDirector("Juan Carlos");
-            peli.setGenero("Drama");
-            peli.setSinopsis("Pelicula de drampa");
-            peli.setTitulo("Pelicula parte " + (i + 1));;
-            peliculas.add(peli);
-        }
-        
-        this.peliculaRepository.saveAll(peliculas);
-    }
-    
 }
