@@ -53,14 +53,26 @@ public class PeliculaController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pelicula> getPeliculaById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(this.peliculaService.getPeliculaById(id));
+    public ResponseEntity<EntityModel<Pelicula>> getPeliculaById(@PathVariable("id") Long id) {
+        
+        EntityModel<Pelicula> res = EntityModel.of(this.peliculaService.getPeliculaById(id),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculaById(id)).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculas()).withRel("peliculas")
+        );
+        return ResponseEntity.ok(res);
     }
 
 
     @PostMapping
-    public ResponseEntity<Pelicula> createPelicula(@Valid @RequestBody Pelicula pelicula) {
-        return ResponseEntity.ok(this.peliculaService.createPelicula(pelicula));
+    public ResponseEntity<EntityModel<Pelicula>> createPelicula(@Valid @RequestBody Pelicula pelicula) {
+
+        Pelicula peliculaCreada = this.peliculaService.createPelicula(pelicula);
+        EntityModel<Pelicula> res = EntityModel.of(peliculaCreada,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculaById(peliculaCreada.getId())).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculas()).withRel("peliculas")
+        );
+
+        return ResponseEntity.ok(res);
     }
 
 
@@ -71,8 +83,15 @@ public class PeliculaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pelicula> updatePelicula(@PathVariable("id") Long id, @Valid @RequestBody Pelicula pelicula) {
-        return ResponseEntity.ok(this.peliculaService.updatePelicula(id, pelicula));
+    public ResponseEntity<EntityModel<Pelicula>> updatePelicula(@PathVariable("id") Long id, @Valid @RequestBody Pelicula pelicula) {
+
+        Pelicula peliculaActualizada = this.peliculaService.updatePelicula(id, pelicula);
+        EntityModel<Pelicula> res = EntityModel.of(peliculaActualizada,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculaById(peliculaActualizada.getId())).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPeliculas()).withRel("peliculas")
+        );
+
+        return ResponseEntity.ok(res);
 
     }
     
